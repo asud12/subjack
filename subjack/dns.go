@@ -11,12 +11,15 @@ import (
 
 func (s *Subdomain) dns(o *Options) {
 	config := o.Fingerprints
+	match, cname := VerifyCNAME(s.Url, config)
 
 	if o.All {
-		detect(s.Url, o.Output, o.Ssl, o.Verbose, o.Manual, o.Timeout, config)
+		detect(s.Url, o.Output, o.Ssl, o.Verbose, o.Manual, o.Timeout, config, cname)
 	} else {
-		if VerifyCNAME(s.Url, config) {
-			detect(s.Url, o.Output, o.Ssl, o.Verbose, o.Manual, o.Timeout, config)
+		
+		//fmt.Println("cname: ", cname)
+		if match {
+			detect(s.Url, o.Output, o.Ssl, o.Verbose, o.Manual, o.Timeout, config, cname)
 		}
 
 		if o.Verbose {
@@ -27,9 +30,9 @@ func (s *Subdomain) dns(o *Options) {
 
 			if o.Output != "" {
 				if chkJSON(o.Output) {
-					writeJSON("", s.Url, o.Output)
+					writeJSON("", s.Url, cname, o.Output)
 				} else {
-					write(result, o.Output)
+					write("here1dnsgo"+result, o.Output)
 				}
 			}
 		}

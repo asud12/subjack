@@ -19,8 +19,8 @@ type Fingerprints struct {
 * Triage step to check whether the CNAME matches
 * the fingerprinted CNAME of a vulnerable cloud service.
  */
-func VerifyCNAME(subdomain string, config []Fingerprints) (match bool) {
-	cname := resolve(subdomain)
+func VerifyCNAME(subdomain string, config []Fingerprints) (match bool, cname string) {
+	cname = resolve(subdomain)
 	match = false
 
 VERIFY:
@@ -33,21 +33,24 @@ VERIFY:
 		}
 	}
 
-	return match
+	return match, cname
 }
 
-func detect(url, output string, ssl, verbose, manual bool, timeout int, config []Fingerprints) {
+func detect(url, output string, ssl, verbose, manual bool, timeout int, config []Fingerprints, cname string) {
 	service := Identify(url, ssl, manual, timeout, config)
 
 	if service != "" {
-		result := fmt.Sprintf("[%s] %s\n", service, url)
+		result := fmt.Sprintf("[%s] %s - %s\n", service, url, cname)
+		//fmt.Println("Result: ", result)
 		c := fmt.Sprintf("\u001b[32;1m%s\u001b[0m", service)
+		//fmt.Println("c: ", c)
 		out := strings.Replace(result, service, c, -1)
+		//fmt.Println("out: ", out)
 		fmt.Printf(out)
 
 		if output != "" {
 			if chkJSON(output) {
-				writeJSON(service, url, output)
+				writeJSON(service, url, cname, output)
 			} else {
 				write(result, output)
 			}
@@ -62,7 +65,7 @@ func detect(url, output string, ssl, verbose, manual bool, timeout int, config [
 
 		if output != "" {
 			if chkJSON(output) {
-				writeJSON(service, url, output)
+				writeJSON(service, url, cname, output)
 			} else {
 				write(result, output)
 			}

@@ -11,6 +11,7 @@ import (
 
 type Results struct {
 	Subdomain  string `json:"subdomain"`
+	CNAME	   string `json:"cname"`
 	Vulnerable bool   `json:"vulnerable"`
 	Service    string `json:"service,omitempty"`
 	Domain     string `json:"nonexist_domain,omitempty"`
@@ -53,17 +54,18 @@ func write(result, output string) {
 
 	defer f.Close()
 
-	_, err = f.WriteString(result)
+	_, err = f.WriteString(result+"aaaa")
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func writeJSON(service, url, output string) {
+func writeJSON(service, url, cname, output string) {
 	var r Results
 	if strings.Contains(service, "DOMAIN") {
 		r = Results{
 			Subdomain:  strings.ToLower(url),
+			CNAME:		strings.ToLower(cname),
 			Vulnerable: true,
 			Service:    "unregistered domain",
 			Domain:     strings.Split(service, " - ")[1],
@@ -72,6 +74,7 @@ func writeJSON(service, url, output string) {
 		if service != "" {
 			r = Results{
 				Subdomain:  strings.ToLower(url),
+				CNAME:		strings.ToLower(cname),
 				Vulnerable: true,
 				Service:    strings.ToLower(service),
 			}

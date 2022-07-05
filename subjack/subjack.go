@@ -62,4 +62,3 @@ func Process(o *Options) {
 	close(urls)
 	wg.Wait()
 }
-g
